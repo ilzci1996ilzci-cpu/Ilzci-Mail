@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Ilzci Mail</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #070a10;
+      color: #f4f7fc;
+      font-family:
+        Inter,
+        Arial,
+        sans-serif;
+      display: flex;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 30px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 15px;
+      background: #f5b325;
+      color: #11151d;
+      display: grid;
+      place-items: center;
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .brand {
+      font-size: 16px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .sub {
+      color: #8996aa;
+      font-size: 10px;
+      letter-spacing: 2px;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: #0e1420;
+      border: 1px solid #253247;
+      border-radius: 22px;
+      padding: 22px;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.05;
+    }
+
+    .gold {
+      color: #f5b325;
+    }
+
+    .description {
+      color: #8996aa;
+      line-height: 1.7;
+      margin-top: 14px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      padding: 15px;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      background: #f5b325;
+      color: #11151d;
+      margin-top: 18px;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .email {
+      font-size: 20px;
+      font-weight: 900;
+      word-break: break-all;
+      margin-top: 12px;
+    }
+
+    .id {
+      color: #69a9ff;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .status {
+      color: #8996aa;
+      margin-top: 15px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .success {
+      color: #39d98a;
+    }
+
+    .error {
+      color: #ff647c;
+    }
+
+    .message {
+      background: #131c2b;
+      border: 1px solid #253247;
+      border-radius: 16px;
+      padding: 16px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .subject {
+      font-weight: 900;
+    }
+
+    .sender {
+      color: #69a9ff;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .preview {
+      color: #8996aa;
+      font-size: 12px;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    pre {
+      overflow-x: auto;
+      background: #070a10;
+      padding: 14px;
+      border-radius: 12px;
+      color: #a9bcd6;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    <div class="logo">M</div>
+
+    <div>
+      <div class="brand">
+        ILZCI MAIL
+      </div>
+
+      <div class="sub">
+        TEMPORARY INBOX
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <h1>
+      Mail,<br />
+      <span class="gold">
+        made simple.
+      </span>
+    </h1>
+
+    <div class="description">
+      Create a temporary email address and
+      receive messages directly in your browser.
+    </div>
+
+    <button
+      id="createButton"
+      onclick="createInbox()"
+    >
+      Create email address
+    </button>
+
+    <div
+      id="status"
+      class="status"
+    >
+      Ready.
+    </div>
+
+  </div>
+
+  <div
+    id="inboxCard"
+    class="card"
+    style="display:none"
+  >
+
+    <div
+      style="
+        color:#8996aa;
+        font-size:10px;
+        letter-spacing:1.5px;
+        font-weight:900;
+      "
+    >
+      YOUR EMAIL
+    </div>
+
+    <div
+      id="email"
+      class="email"
+    ></div>
+
+    <div
+      id="inboxId"
+      class="id"
+    ></div>
+
+    <button
+      onclick="copyEmail()"
+    >
+      Copy email
+    </button>
+
+    <button
+      onclick="loadMessages()"
+      style="
+        background:#131c2b;
+        color:#f5b325;
+        border:1px solid #253247;
+      "
+    >
+      Refresh messages
+    </button>
+
+  </div>
+
+  <div
+    id="messagesCard"
+    class="card"
+    style="display:none"
+  >
+
+    <div
+      style="
+        font-size:18px;
+        font-weight:900;
+      "
+    >
+      Incoming messages
+    </div>
+
+    <div
+      id="messages"
+      style="margin-top:15px"
+    ></div>
+
+  </div>
+
+</div>
+
+<script>
+
+const API =
+  "https://ilzci-mail-production-8a8c.up.railway.app";
+
+let inbox = null;
+
+function setStatus(
+  message,
+  type = ""
+) {
+  const element =
+    document.getElementById(
+      "status"
+    );
+
+  element.className =
+    "status " + type;
+
+  element.textContent =
+    message;
+}
+
+async function request(
+  url,
+  options = {}
+) {
+  const response =
+    await fetch(url, {
+      ...options,
+
+      headers: {
+        Accept:
+          "application/json",
+        "Content-Type":
+          "application/json",
+        ...(options.headers || {})
+      }
+    });
+
+  const text =
+    await response.text();
+
+  let data;
+
+  try {
+    data =
+      JSON.parse(text);
+  } catch {
+    throw new Error(
+      `Invalid server response (${response.status})\n\n${text.slice(0, 500)}`
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data.error ||
+      data.message ||
+      `HTTP ${response.status}`
+    );
+  }
+
+  return data;
+}
+
+async function createInbox() {
+
+  const button =
+    document.getElementById(
+      "createButton"
+    );
+
+  button.disabled = true;
+
+  setStatus(
+    "Creating inbox..."
+  );
+
+  try {
+
+    const result =
+      await request(
+        `${API}/api/inboxes`,
+        {
+          method: "POST",
+          body: "{}"
+        }
+      );
+
+    if (
+      !result.ok ||
+      !result.email ||
+      !result.id
+    ) {
+      throw new Error(
+        "The backend returned an invalid inbox."
+      );
+    }
+
+    inbox = {
+      email:
+        String(result.email),
+
+      id:
+        String(result.id)
+    };
+
+    document.getElementById(
+      "inboxCard"
+    ).style.display = "block";
+
+    document.getElementById(
+      "messagesCard"
+    ).style.display = "block";
+
+    document.getElementById(
+      "email"
+    ).textContent =
+      inbox.email;
+
+    document.getElementById(
+      "inboxId"
+    ).textContent =
+      "Inbox ID: " +
+      inbox.id;
+
+    setStatus(
+      "Inbox created successfully.",
+      "success"
+    );
+
+    await loadMessages();
+
+  } catch (error) {
+
+    setStatus(
+      "Request failed\n\n" +
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    button.disabled = false;
+  }
+}
+
+async function loadMessages() {
+
+  if (!inbox) {
+    return;
+  }
+
+  const container =
+    document.getElementById(
+      "messages"
+    );
+
+  container.innerHTML =
+    `<div class="status">
+      Loading messages...
+    </div>`;
+
+  try {
+
+    const url =
+      `${API}/api/inboxes/${encodeURIComponent(
+        inbox.id
+      )}/messages?email=${encodeURIComponent(
+        inbox.email
+      )}`;
+
+    const result =
+      await request(url);
+
+    const messages =
+      Array.isArray(
+        result.messages
+      )
+        ? result.messages
+        : [];
+
+    renderMessages(
+      messages
+    );
+
+    setStatus(
+      `Inbox synchronized. ${messages.length} message(s).`,
+      "success"
+    );
+
+  } catch (error) {
+
+    container.innerHTML =
+      `<div class="error">
+        ${escapeHtml(
+          error.message
+        )}
+      </div>`;
+
+    setStatus(
+      "Failed to load messages\n\n" +
+      error.message,
+      "error"
+    );
+  }
+}
+
+function renderMessages(
+  messages
+) {
+
+  const container =
+    document.getElementById(
+      "messages"
+    );
+
+  if (!messages.length) {
+
+    container.innerHTML =
+      `<div class="status">
+        No messages yet.
+      </div>`;
+
+    return;
+  }
+
+  container.innerHTML =
+    messages
+      .map(
+        (message) => {
+
+          const subject =
+            message.subject ||
+            message.title ||
+            "No subject";
+
+          const sender =
+            typeof message.from ===
+            "object"
+              ? (
+                  message.from.email ||
+                  message.from.name ||
+                  "Unknown sender"
+                )
+              : (
+                  message.from ||
+                  message.sender ||
+                  "Unknown sender"
+                );
+
+          const body =
+            message.text ||
+            message.body ||
+            message.message ||
+            "";
+
+          return `
+            <div class="message">
+
+              <div class="subject">
+                ${escapeHtml(
+                  String(subject)
+                )}
+              </div>
+
+              <div class="sender">
+                ${escapeHtml(
+                  String(sender)
+                )}
+              </div>
+
+              <div class="preview">
+                ${escapeHtml(
+                  String(body)
+                    .replace(
+                      /<[^>]*>/g,
+                      " "
+                    )
+                    .trim()
+                    .slice(0, 300)
+                )}
+              </div>
+
+            </div>
+          `;
+        }
+      )
+      .join("");
+}
+
+async function copyEmail() {
+
+  if (!inbox) {
+    return;
+  }
+
+  try {
+
+    await navigator.clipboard.writeText(
+      inbox.email
+    );
+
+    setStatus(
+      "Email copied.",
+      "success"
+    );
+
+  } catch {
+
+    setStatus(
+      "Could not copy email.",
+      "error"
+    );
+  }
+}
+
+function escapeHtml(
+  value
+) {
+
+  return String(value)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
+}
+
+setInterval(
+  () => {
+    if (inbox) {
+      loadMessages();
+    }
+  },
+  5000
+);
+
+</script>
+
+</body>
+</html>
